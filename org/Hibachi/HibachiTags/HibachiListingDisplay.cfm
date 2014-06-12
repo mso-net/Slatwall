@@ -216,6 +216,10 @@
 				<!--- Add to the all property identifiers --->
 				<cfset thistag.allpropertyidentifiers = listAppend(thistag.allpropertyidentifiers, column.propertyIdentifier) />
 				
+				<!--- TODO: inspect column.linkQueryString for any stringReplace values and parse out those property identifiers, and add them to allPropertyIdentifiers --->
+				<!--- Also, need to make sure we don't add the same thing twice --->
+				
+				
 				<!--- Check to see if we need to setup the dynamic filters, ect --->
 				<cfif not len(column.search) || not len(column.sort) || not len(column.filter) || not len(column.range)>
 					
@@ -394,7 +398,7 @@
 								<cfset column.title = thistag.exampleEntity.getTitleByPropertyIdentifier(column.propertyIdentifier) />
 							</cfif>
 						</cfsilent>
-						<th class="data #column.tdClass#" <cfif len(column.propertyIdentifier)>data-propertyIdentifier="#column.propertyIdentifier#"<cfelseif len(column.processObjectProperty)>data-processobjectproperty="#column.processObjectProperty#"<cfif structKeyExists(column, "fieldClass")> data-fieldclass="#column.fieldClass#"</cfif></cfif>>
+						<th class="data #column.tdClass#" <cfif len(column.propertyIdentifier)>data-propertyIdentifier="#column.propertyIdentifier#"<cfelseif len(column.processObjectProperty)>data-processobjectproperty="#column.processObjectProperty#"<cfif structKeyExists(column, "fieldClass")> data-fieldclass="#column.fieldClass#"</cfif></cfif><cfif len(column.linkAction) and getHibachiScope().authenticateAction(column.linkAction)>data-linkaction="#column.linkAction#"</cfif>><!--- TODO: add linkQueryString --->
 							<cfif (not column.sort or thistag.expandable) and (not column.search or thistag.expandable) and (not column.filter or thistag.expandable) and (not column.range or thistag.expandable)>
 								#column.title#
 							<cfelse>
@@ -485,7 +489,13 @@
 							<cfelse>
 								<td class="#column.tdclass#">
 									<cfif len(column.propertyIdentifier)>
-										#record.getValueByPropertyIdentifier( propertyIdentifier=column.propertyIdentifier, formatValue=true )#
+										
+										<cfif len(column.linkAction) and getHibachiScope().authenticateAction(column.linkAction)>
+											<cf_HibachiActionCaller action="#column.linkAction#" queryString="#record.stringReplace(column.linkQueryString)#" text="#record.getValueByPropertyIdentifier( propertyIdentifier=column.propertyIdentifier, formatValue=true )#" />
+										<cfelse>
+											#record.getValueByPropertyIdentifier( propertyIdentifier=column.propertyIdentifier, formatValue=true )#
+										</cfif>
+										
 									<cfelseif len(column.processObjectProperty)>
 										<cfset attData = duplicate(column) />
 										<cfset attData.object = thisRecordProcessObject />

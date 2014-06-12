@@ -77,6 +77,7 @@ component persistent="false" accessors="true" output="false" extends="Slatwall.o
 		param name="arguments.rc.processObjectProperties" default="";
 		param name="arguments.rc.propertyIdentifiers" default="";
 		param name="arguments.rc.adminAttributes" default="";
+		param name="arguments.rc.linkActionColumns" default="";
 	
 		var smartList = getHibachiService().getServiceByEntityName( entityName=rc.entityName ).invokeMethod( "get#getHibachiService().getProperlyCasedShortEntityName( rc.entityName )#SmartList", {1=rc} );
 		
@@ -112,7 +113,13 @@ component persistent="false" accessors="true" output="false" extends="Slatwall.o
 			
 			// Add the simple values from property identifiers
 			for(var p=1; p<=arrayLen(piArray); p++) {
-				var value = record.getValueByPropertyIdentifier( propertyIdentifier=piArray[p], formatValue=true );
+				if(structKeyExists(arguments.rc.linkActionColumns, piArray[p])) {
+					var linkHREF = "getHibachiScope().buildURL(action=arguments.rc.linkActionColumns[piArray[p]].linkAction, querystring=record.stringReplace(arguments.rc.linkActionColumns[piArray[p]].linkAction))";
+					var value = 1; // TODO: how do we do action caller here????
+				} else {
+					var value = record.getValueByPropertyIdentifier( propertyIdentifier=piArray[p], formatValue=true );	
+				}
+				
 				if((len(value) == 3 and value eq "YES") or (len(value) == 2 and value eq "NO")) {
 					thisRecord[ piArray[p] ] = value & " ";
 				} else {

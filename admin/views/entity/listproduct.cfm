@@ -67,7 +67,7 @@ Notes:
 			</cf_HibachiActionCallerDropdown>
 		</cf_HibachiListingDisplayButtonGroup>
 			
-		<cf_HibachiListingColumn propertyIdentifier="productType.productTypeName" />
+		<cf_HibachiListingColumn propertyIdentifier="productType.productTypeName" actionCallerAttributes="#{action='admin:entity.detailproducttype', queryString='productTypeID=${productType.productTypeID}'}#" />
 		<cf_HibachiListingColumn propertyIdentifier="brand.brandName" />
 		<cf_HibachiListingColumn tdclass="primary" propertyIdentifier="productName"  />
 		<cf_HibachiListingColumn propertyIdentifier="productCode" />

@@ -13,5 +13,8 @@
 	<cfparam name="attributes.editable" type="boolean" default="false" />
 	<cfparam name="attributes.buttonGroup" type="any" default="" />
 	
+	<cfparam name="attributes.linkAction" type="any" default="" />
+	<cfparam name="attributes.linkQueryString" type="any" default="" />
+	
 	<cfassociate basetag="cf_HibachiListingDisplay" datacollection="columns">
 </cfif>

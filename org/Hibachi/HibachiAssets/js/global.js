@@ -13,6 +13,8 @@ var globalSearchCache = {
 	onHold: false
 };
 
+var pendingCarriageReturn = false;
+
 //Utility delay function
 delay = function(func, wait) {
     var args = Array.prototype.slice.call(arguments, 2);
@@ -1032,6 +1034,17 @@ function listingDisplayUpdate( tableID, data, afterRowID ) {
 		data[ 'adminAttributes' ] = JSON.stringify(jQuery('#' + tableID).find('th.admin').data());
 		data[ 'savedStateID' ] = jQuery('#' + tableID).data('savedstateid');
 		data[ 'entityName' ] = jQuery('#' + tableID).data('entityname');
+		
+		
+		/*
+		loop over headers and add to this linkActionColumns data for any heads that have a data-linkAction and data-linkActionQueryString
+		data[ 'linkActionColumns' ] = {
+			'productType.productTypeID' : {
+				'linkAction' : '',
+				'linkQueryString' : ''
+			}
+		};
+		*/
 		
 		var idProperty = jQuery('#' + tableID).data('idproperty');
 		var nextRowDepth = 0;
