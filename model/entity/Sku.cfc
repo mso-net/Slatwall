@@ -170,12 +170,12 @@ component entityname="SlatwallSku" table="SwSku" persistent=true accessors=true 
 		return this.getProduct().getPurchaseStartDateTime();
 	}
 	
-	// @hint Returns sku purchaseEndDateTime if defined, or product purchaseStartDateTime if not defined in sku.
+	// @hint Returns sku purchaseEndDateTime if defined, or product purchaseEndDateTime if not defined in sku.
 	public any function getPurchaseEndDateTime() {
 		if(isDefined("purchaseEndDateTime")) {
 			return purchaseEndDateTime;
 		}
-		return this.getProduct().getPurchaseStartDateTime();
+		return this.getProduct().getPurchaseEndDateTime();
 	}
 	
 	// START: Image Methods
