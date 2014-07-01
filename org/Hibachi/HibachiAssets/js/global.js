@@ -12,6 +12,7 @@ var textAutocompleteCache = {
 var globalSearchCache = {
 	onHold: false
 };
+var pendingCarriageReturn = false;
 
 var pendingCarriageReturn = false;
 

@@ -61,13 +61,15 @@ component displayname="Order" entityname="SlatwallOrder" table="SwOrder" persist
 	
 	// Related Object Properties (many-to-one)
 	property name="account" cfc="Account" fieldtype="many-to-one" fkcolumn="accountID";
-	property name="referencedOrder" cfc="Order" fieldtype="many-to-one" fkcolumn="referencedOrderID";	// Points at the "parent" (NOT return) order.
+	property name="billingAccountAddress" hb_populateEnabled="public" cfc="AccountAddress" fieldtype="many-to-one" fkcolumn="billingAccountAddressID";
+	property name="billingAddress" hb_populateEnabled="public" cfc="Address" fieldtype="many-to-one" fkcolumn="billingAddressID";
+	property name="defaultStockLocation" cfc="Location" fieldtype="many-to-one" fkcolumn="locationID";
 	property name="orderType" cfc="Type" fieldtype="many-to-one" fkcolumn="orderTypeID" hb_optionsSmartListData="f:parentType.systemCode=orderType";
 	property name="orderStatusType" cfc="Type" fieldtype="many-to-one" fkcolumn="orderStatusTypeID" hb_optionsSmartListData="f:parentType.systemCode=orderStatusType";
 	property name="orderOrigin" cfc="OrderOrigin" fieldtype="many-to-one" fkcolumn="orderOriginID";
-	property name="defaultStockLocation" cfc="Location" fieldtype="many-to-one" fkcolumn="locationID";
-	property name="shippingAddress" cfc="Address" fieldtype="many-to-one" fkcolumn="shippingAddressID" hb_populateEnabled="public";
-	property name="billingAddress" cfc="Address" fieldtype="many-to-one" fkcolumn="billingAddressID" hb_populateEnabled="public";
+	property name="referencedOrder" cfc="Order" fieldtype="many-to-one" fkcolumn="referencedOrderID";	// Points at the "parent" (NOT return) order.
+	property name="shippingAccountAddress" hb_populateEnabled="public" cfc="AccountAddress" fieldtype="many-to-one" fkcolumn="shippingAccountAddressID";
+	property name="shippingAddress" hb_populateEnabled="public" cfc="Address" fieldtype="many-to-one" fkcolumn="shippingAddressID";
 	
 	// Related Object Properties (one-To-many)
 	property name="attributeValues" singularname="attributeValue" cfc="AttributeValue" type="array" fieldtype="one-to-many" fkcolumn="orderID" cascade="all-delete-orphan" inverse="true";
@@ -230,10 +232,6 @@ component displayname="Order" entityname="SlatwallOrder" table="SwOrder" persist
 				orderPayment.setAmount( orderPayment.getAmount() );
 			}
 			
-			// Loop over the order fulfillments to remove and accountAddresses
-			for(var orderFulfillment in getOrderFulfillments()) {
-				orderFulfillment.setAccountAddress( javaCast("null", "") );
-			}
 		}
 		
 		// If the order is closed, and has no close dateTime
@@ -876,6 +874,24 @@ component displayname="Order" entityname="SlatwallOrder" table="SwOrder" persist
 	
 	// ============== START: Overridden Implicet Getters ===================
 	
+	public any function getBillingAddress() {
+		if(structKeyExists(variables, "billingAddress")) {
+			return variables.billingAddress;
+		} else if (!isNull(getBillingAccountAddress())) {
+			setBillingAddress( getBillingAccountAddress().getAddress().copyAddress( true ) );
+			return variables.billingAddress;
+		}
+	}
+
+	public any function getShippingAddress() {
+		if(structKeyExists(variables, "shippingAddress")) {
+			return variables.shippingAddress;
+		} else if (!isNull(getShippingAccountAddress())) {
+			setShippingAddress( getShippingAccountAddress().getAddress().copyAddress( true ) );
+			return variables.shippingAddress;
+		}
+	}
+	
 	public any function getOrderStatusType() {
 		if(isNull(variables.orderStatusType)) {
 			variables.orderStatusType = getService("settingService").getTypeBySystemCode('ostNotPlaced');
@@ -918,6 +934,38 @@ component displayname="Order" entityname="SlatwallOrder" table="SwOrder" persist
 			variables.referencingOrdersSmartList.addFilter('referencedOrder.orderID', getOrderID());
 		}
 		return variables.referencingOrdersSmartList;
+	}
+	
+	public any function setShippingAccountAddress( required any accountAddress ) {
+		
+		// If the shippingAddress is a new shippingAddress
+		if( isNull(getShippingAddress()) ) {
+			setShippingAddress( arguments.accountAddress.getAddress().copyAddress( true ) );
+		
+		// Else if there was no accountAddress before, or the accountAddress has changed
+		} else if (!structKeyExists(variables, "shippingAccountAddress") || (structKeyExists(variables, "shippingAccountAddress") && variables.shippingAccountAddress.getAccountAddressID() != arguments.accountAddress.getAccountAddressID()) ) {
+			getShippingAddress().populateFromAddressValueCopy( arguments.accountAddress.getAddress() );
+			
+		}
+		
+		// Set the actual accountAddress
+		variables.shippingAccountAddress = arguments.accountAddress;
+	}
+	
+	public any function setBillingAccountAddress( required any accountAddress ) {
+		
+		// If the shippingAddress is a new shippingAddress
+		if( isNull(getBillingAddress()) ) {
+			setBillingAddress( arguments.accountAddress.getAddress().copyAddress( true ) );
+		
+		// Else if there was no accountAddress before, or the accountAddress has changed
+		} else if (!structKeyExists(variables, "billingAccountAddress") || (structKeyExists(variables, "billingAccountAddress") && variables.billingAccountAddress.getAccountAddressID() != arguments.accountAddress.getAccountAddressID()) ) {
+			getBillingAddress().populateFromAddressValueCopy( arguments.accountAddress.getAddress() );
+			
+		}
+		
+		// Set the actual accountAddress
+		variables.billingAccountAddress = arguments.accountAddress;
 	}
 	
 	// ==================  END:  Overridden Methods ========================

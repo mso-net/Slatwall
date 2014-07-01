@@ -1,4 +1,4 @@
-/*
+<!---
 
     Slatwall - An Open Source eCommerce Platform
     Copyright (C) ten24, LLC
@@ -45,15 +45,49 @@
 
 Notes:
 
-*/
-component extends="mxunit.framework.TestCase" output="false" {
+--->
 
-	// @hint put things in here that you want to run befor EACH test
-	public void function setUp() {
-		
-		variables.entityDirectory = getDirectoryFromPath(expandPath("/Slatwall/com/entity/"));
-		variables.entityTestDirectory = getDirectoryFromPath(expandPath("/Slatwall/meta/tests/unit/entity/"));
-		
-	}
+<cfset local.scriptHasErrors = false />
+
+<!--- Update taxCategoryRate and set taxLiabilityAppliedToItemFlag where null --->
+<cftry>
 	
-}
+	<cfquery name="local.updateData">
+		UPDATE
+			SwTaxCategoryRate
+		SET
+			taxLiabilityAppliedToItemFlag = 1
+		WHERE
+			taxLiabilityAppliedToItemFlag is null
+	</cfquery>
+	
+	<cfcatch>
+		<cflog file="Slatwall" text="ERROR UPDATE SCRIPT - Update taxCategoryRate and set taxLiabilityAppliedToItemFlag to 1 where it was null has caused an error">
+		<cfset local.scriptHasErrors = true />
+	</cfcatch>
+</cftry>
+
+<!--- Update taxApplied to set taxLiabilityAmount to match taxAmount wherever it is null --->
+<cftry>
+	
+	<cfquery name="local.updateData">
+		UPDATE
+			SwTaxApplied
+		SET
+			taxLiabilityAmount = taxAmount
+		WHERE
+			taxLiabilityAmount is null
+	</cfquery>
+	
+	<cfcatch>
+		<cflog file="Slatwall" text="ERROR UPDATE SCRIPT - Update taxApplied to set taxLiabilityAmount to match taxAmount wherever it is null has caused an error">
+		<cfset local.scriptHasErrors = true />
+	</cfcatch>
+</cftry>
+
+<cfif local.scriptHasErrors>
+	<cflog file="Slatwall" text="General Log - Part of Script v3_4 had errors when running">
+	<cfthrow detail="Part of Script v3_4 had errors when running">
+<cfelse>
+	<cflog file="Slatwall" text="General Log - Script v3_4 has run with no errors">
+</cfif>

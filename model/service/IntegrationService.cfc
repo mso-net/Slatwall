@@ -164,6 +164,9 @@ component extends="HibachiService" persistent="false" accessors="true" output="f
 					installedIntegrationList = listAppend(installedIntegrationList, integrationPackage);
 					
 					var integration = this.getIntegrationByIntegrationPackage(integrationPackage, true);
+					if(integration.getNewFlag()) {
+						integration.setActiveFlag(0);	
+					}
 					integration.setInstalledFlag(1);
 					integration.setIntegrationPackage(integrationPackage);
 					integration.setIntegrationName(integrationCFC.getDisplayName());
@@ -230,6 +233,7 @@ component extends="HibachiService" persistent="false" accessors="true" output="f
 		var isl = this.getIntegrationSmartList();
 		isl.addFilter('activeFlag', 1);
 		isl.addFilter('installedFlag', 1);
+		isl.addLikeFilter('integrationTypeList', '%fw1%');
 		
 		var authInts = isl.getRecords();
 		for(var i=1; i<=arrayLen(authInts); i++) {
@@ -249,7 +253,7 @@ component extends="HibachiService" persistent="false" accessors="true" output="f
 		var isl = this.getIntegrationSmartList();
 		isl.addFilter('activeFlag', 1);
 		isl.addFilter('installedFlag', 1);
-		isl.addLikeFilter('integrationPackage', '%authentication%');
+		isl.addLikeFilter('integrationTypeList', '%authentication%');
 		
 		var authInts = isl.getRecords();
 		for(var i=1; i<=arrayLen(authInts); i++) {
